@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Imobiliário | Gestão Completa</title>
+    <!-- Ícones (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS GERAIS (CSS) --- */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+            --border: #ddd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { display: flex; height: 100vh; background-color: #f4f7f6; overflow: hidden; }
+
+        /* Sidebar */
+        aside {
+            width: 250px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+        
+        aside .logo {
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        aside nav { flex: 1; padding-top: 20px; }
+        
+        aside nav button {
+            background: none;
+            border: none;
+            color: #bdc3c7;
+            width: 100%;
+            padding: 15px 25px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        aside nav button:hover, aside nav button.active {
+            background-color: var(--secondary);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        h2 { color: var(--dark); }
+
+        /* Cards do Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        .card h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 10px; }
+        .card .value { font-size: 1.8rem; font-weight: bold; color: var(--dark); }
+
+        /* Tabelas */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: var(--light); color: var(--dark); font-weight: 600; }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* Botões */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+        .btn-primary { background-color: var(--accent); color: white; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+
+        /* Kanban (Funil de Vendas) */
+        .kanban-board {
+            display: flex;
+            gap: 15px;
+            height: calc(100vh - 150px);
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .kanban-column {
+            flex: 1;
+            min-width: 250px;
+            background-color: #e0e5e9;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kanban-header {
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .kanban-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: grab;
+            border-left: 3px solid var(--warning);
+        }
+        .kanban-card h4 { font-size: 1rem; margin-bottom: 5px; }
+        .kanban-card p { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
+        .kanban-card .tag { font-size: 0.75rem; background: var(--light); padding: 2px 6px; border-radius: 4px; }
+
+        /* Modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .close { cursor: pointer; font-size: 1.5rem; }
+
+        /* Formulários */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        /* Views Control */
+        .section-view { display: none; }
+        .section-view.active { display: block; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; }
+            aside { width: 100%; height: auto; }
+            aside nav { display: flex; overflow-x: auto; padding: 0; }
+            aside nav button { flex: 0 0 auto; width: auto; border: none; padding: 10px; font-size: 0.8rem; }
+            .kanban-board { flex-direction: column; height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="logo"><i class="fas fa-home"></i> IMOB CRM</div>
+        <nav>
+            <button onclick="showSection('dashboard')" class="active" id="nav-dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+            <button onclick="showSection('clientes')" id="nav-clientes"><i class="fas fa-users"></i> Clientes</button>
+            <button onclick="showSection('imoveis')" id="nav-imoveis"><i class="fas fa-building"></i> Imóveis</button>
+            <button onclick="showSection('funil')" id="nav-funil"><i class="fas fa-filter"></i> Funil de Vendas</button>
+            <button onclick="showSection('agenda')" id="nav-agenda"><i class="fas fa-calendar-alt"></i> Agenda</button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section-view active">
+            <header>
+                <h2>Visão Geral</h2>
+                <span id="data-hoje"></span>
+            </header>
+            
+            <div class="dashboard-grid">
+                <div class="card" style="border-color: var(--accent);">
+                    <h3>Total Clientes</h3>
+                    <div class="value" id="dash-total-clientes">0</div>
+                </div>
+                <div class="card" style="border-color: var(--success);">
+                    <h3>Imóveis Ativos</h3>
+                    <div class="value" id="dash-total-imoveis">0</div>
+                </div>
+                <div class="card" style="border-color: var(--warning);">
+                    <h3>Negociações Abertas</h3>
+                    <div class="value" id="dash-negociacoes">0</div>
+                </div>
+                <div class="card" style="border-color: var(--danger);">
+                    <h3>Valor em Pipeline</h3>
+                    <div class="value" id="dash-valor-pipeline">R$ 0</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Alertas</h3>
+                    <ul id="lista-alertas" style="list-style: none; margin-top: 10px;">
+                        <!-- JS Preenche -->
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-calendar-day"></i> Agenda Hoje</h3>
+                    <ul id="lista-agenda-hoje" style="list-style: none; margin-top: 10px;">
+                        <!-- JS Preenche -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLIENTES -->
+        <section id="clientes" class="section-view">
+            <header>
+                <h2>Gestão de Clientes</h2>
+                <button class="btn btn-primary" onclick="openModal('modal-cliente')"><i class="fas fa-plus"></i> Novo Cliente</button>
+            </header>
+            <div class="form-group">
+                <input type="text" id="busca-cliente" placeholder="Buscar por nome, email ou telefone..." onkeyup="renderClientes()">
+            </div>
+            <div class="table-container">
+                <table id="tabela-clientes">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Contato</th>
+                            <th>Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody><!-- JS --></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- IMÓVEIS -->
+        <section id="imoveis" class="section-view">
+            <header>
+                <h2>Portfólio de Imóveis</h2>
+                <button class="btn btn-primary" onclick="openModal('modal-imovel')"><i class="fas fa-plus"></i> Novo Imóvel</button>
+            </header>
+            <div class="table-container">
+                <table id="tabela-imoveis">
+                    <thead>
+                        <tr>
+                            <th>Ref</th>
+                            <th>Tipo</th>
+                            <th>Localização</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody><!-- JS --></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- FUNIL DE VENDAS -->
+        <section id="funil" class="section-view">
+            <header>
+                <h2>Pipeline de Vendas</h2>
+                <button class="btn btn-primary" onclick="openModal('modal-negociacao')"><i class="fas fa-plus"></i> Nova Negociação</button>
+            </header>
+            <div class="kanban-board" id="kanban-container">
+                <!-- Colunas Geradas via JS -->
+            </div>
+        </section>
+
+        <!-- AGENDA -->
+        <section id="agenda" class="section-view">
+            <header>
+                <h2>Agenda e Atividades</h2>
+                <button class="btn btn-primary" onclick="openModal('modal-atividade')"><i class="fas fa-plus"></i> Nova Atividade</button>
+            </header>
+            <div class="table-container">
+                <table id="tabela-agenda">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Tipo</th>
+                            <th>Cliente</th>
+                            <th>Descrição</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody><!-- JS --></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAIS -->
+    
+    <!-- Modal Cliente -->
+    <div id="modal-cliente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cadastro de Cliente</h3>
+                <span class="close" onclick="closeModal('modal-cliente')">&times;</span>
+            </div>
+            <form id="form-cliente" onsubmit="salvarCliente(event)">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="cli-nome" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone / WhatsApp</label>
+                    <input type="text" id="cli-fone" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="cli-email">
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="cli-tipo">
+                        <option value="Comprador">Comprador</option>
+                        <option value="Vendedor">Vendedor</option>
+                        <option value="Investidor">Investidor</option>
+                        <option value="Locatário">Locatário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Interesses / Obs</label>
+                    <textarea id="cli-obs" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success" style="width:100%">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Imóvel -->
+    <div id="modal-imovel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cadastro de Imóvel</h3>
+                <span class="close" onclick="closeModal('modal-imovel')">&times;</span>
+            </div>
+            <form id="form-imovel" onsubmit="salvarImovel(event)">
+                <div class="form-group">
+                    <label>Título / Referência</label>
+                    <input type="text" id="imo-titulo" placeholder="Ex: Apt Centro 2Q" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="imo-tipo">
+                        <option value="Apartamento">Apartamento</option>
+                        <option value="Casa">Casa</option>
+                        <option value="Terreno">Terreno</option>
+                        <option value="Comercial">Comercial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="imo-valor" required>
+                </div>
+                <div class="form-group">
+                    <label>Localização (Bairro/Cidade)</label>
+                    <input type="text" id="imo-local" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="imo-status">
+                        <option value="Disponível">Disponível</option>
+                        <option value="Reservado">Reservado</option>
+                        <option value="Vendido">Vendido</option>
+                        <option value="Alugado">Alugado</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success" style="width:100%">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Negociação -->
+    <div id="modal-negociacao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Negociação</h3>
+                <span class="close" onclick="closeModal('modal-negociacao')">&times;</span>
+            </div>
+            <form id="form-negociacao" onsubmit="salvarNegociacao(event)">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="neg-cliente" required><!-- JS --></select>
+                </div>
+                <div class="form-group">
+                    <label>Imóvel de Interesse</label>
+                    <select id="neg-imovel" required><!-- JS --></select>
+                </div>
+                <div class="form-group">
+                    <label>Valor Potencial</label>
+                    <input type="number" id="neg-valor">
+                </div>
+                <div class="form-group">
+                    <label>Etapa do Funil</label>
+                    <select id="neg-etapa">
+                        <option value="lead">Novo Lead</option>
+                        <option value="qualificacao">Qualificação</option>
+                        <option value="visita">Visita</option>
+                        <option value="proposta">Proposta</option>
+                        <option value="fechamento">Fechamento</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success" style="width:100%">Criar Negociação</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Atividade -->
+    <div id="modal-atividade" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agendar Atividade</h3>
+                <span class="close" onclick="closeModal('modal-atividade')">&times;</span>
+            </div>
+            <form id="form-atividade" onsubmit="salvarAtividade(event)">
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="ativ-tipo">
+                        <option value="Visita">Visita</option>
+                        <option value="Ligação">Ligação</option>
+                        <option value="Reunião">Reunião</option>
+                        <option value="Email">E-mail</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data e Hora</label>
+                    <input type="datetime-local" id="ativ-data" required>
+                </div>
+                <div class="form-group">
+                    <label>Cliente Vinculado</label>
+                    <select id="ativ-cliente" required><!-- JS --></select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="ativ-desc" placeholder="Detalhes...">
+                </div>
+                <button type="submit" class="btn btn-success" style="width:100%">Agendar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* --- LÓGICA DO SISTEMA (JS) --- */
+
+        // Banco de Dados Inicial (Simulado)
+        const initialData = {
+            clientes: [],
+            imoveis: [],
+            negociacoes: [],
+            atividades: []
+        };
+
+        // Estado Global
+        let db = JSON.parse(localStorage.getItem('crmImobDB')) || initialData;
+
+        // Função para Salvar
+        function saveDB() {
+            localStorage.setItem('crmImobDB', JSON.stringify(db));
+            renderAll();
+        }
+
+        // Navegação
+        function showSection(sectionId) {
+            document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('aside nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById('nav-' + sectionId).classList.add('active');
+        }
+
+        // Modais
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+            if(modalId === 'modal-negociacao' || modalId === 'modal-atividade') {
+                populaSelects();
+            }
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Utils
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // --- CRUD CLIENTES ---
+        function renderClientes() {
+            const tbody = document.querySelector('#tabela-clientes tbody');
+            tbody.innerHTML = '';
+            const filtro = document.getElementById('busca-cliente').value.toLowerCase();
+
+            db.clientes.forEach(c => {
+                if(c.nome.toLowerCase().includes(filtro) || c.email.toLowerCase().includes(filtro)) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${c.nome}</strong></td>
+                        <td>${c.fone}<br><small>${c.email}</small></td>
+                        <td><span class="tag">${c.tipo}</span></td>
+                        <td><span style="color:var(--success)">Ativo</span></td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deletarCliente('${c.id}')"><i class="fas fa-trash"></i></button>
+                            <a href="https://wa.me/55${c.fone.replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm"><i class="fab fa-whatsapp"></i></a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+            document.getElementById('dash-total-clientes').innerText = db.clientes.length;
+        }
+
+        function salvarCliente(e) {
+            e.preventDefault();
+            const cliente = {
+                id: generateId(),
+                nome: document.getElementById('cli-nome').value,
+                fone: document.getElementById('cli-fone').value,
+                email: document.getElementById('cli-email').value,
+                tipo: document.getElementById('cli-tipo').value,
+                obs: document.getElementById('cli-obs').value,
+                dataCadastro: new Date().toISOString()
+            };
+            db.clientes.push(cliente);
+            saveDB();
+            closeModal('modal-cliente');
+            e.target.reset();
+        }
+
+        function deletarCliente(id) {
+            if(confirm('Tem certeza?')) {
+                db.clientes = db.clientes.filter(c => c.id !== id);
+                saveDB();
+            }
+        }
+
+        // --- CRUD IMÓVEIS ---
+        function renderImoveis() {
+            const tbody = document.querySelector('#tabela-imoveis tbody');
+            tbody.innerHTML = '';
+            let ativos = 0;
+
+            db.imoveis.forEach(i => {
+                if(i.status === 'Disponível') ativos++;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i.titulo}</td>
+                    <td>${i.tipo}</td>
+                    <td>${i.local}</td>
+                    <td>${formatCurrency(i.valor)}</td>
+                    <td><span style="padding:4px 8px; border-radius:4px; background:${getColorStatus(i.status)}; color:white; font-size:0.8rem">${i.status}</span></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deletarImovel('${i.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('dash-total-imoveis').innerText = ativos;
+        }
+
+        function getColorStatus(status) {
+            if(status === 'Disponível') return 'var(--success)';
+            if(status === 'Reservado') return 'var(--warning)';
+            return 'var(--secondary)';
+        }
+
+        function salvarImovel(e) {
+            e.preventDefault();
+            const imovel = {
+                id: generateId(),
+                titulo: document.getElementById('imo-titulo').value,
+                tipo: document.getElementById('imo-tipo').value,
+                valor: document.getElementById('imo-valor').value,
+                local: document.getElementById('imo-local').value,
+                status: document.getElementById('imo-status').value
+            };
+            db.imoveis.push(imovel);
+            saveDB();
+            closeModal('modal-imovel');
+            e.target.reset();
+        }
+
+        function deletarImovel(id) {
+            db.imoveis = db.imoveis.filter(i => i.id !== id);
+            saveDB();
+        }
+
+        // --- FUNIL / NEGOCIAÇÕES ---
+        const etapas = [
+            { id: 'lead', nome: 'Novo Lead' },
+            { id: 'qualificacao', nome: 'Qualificação' },
+            { id: 'visita', nome: 'Visita' },
+            { id: 'proposta', nome: 'Proposta' },
+            { id: 'fechamento', nome: 'Fechamento' }
+        ];
+
+        function renderFunil() {
+            const container = document.getElementById('kanban-container');
+            container.innerHTML = '';
+            let valorTotal = 0;
+
+            etapas.forEach(etapa => {
+                const col = document.createElement('div');
+                col.className = 'kanban-column';
+                col.innerHTML = `<div class="kanban-header">${etapa.nome}</div>`;
+                
+                const items = db.negociacoes.filter(n => n.etapa === etapa.id);
+                
+                items.forEach(n => {
+                    const cliente = db.clientes.find(c => c.id === n.clienteId);
+                    const imovel = db.imoveis.find(i => i.id === n.imovelId);
+                    valorTotal += Number(n.valor);
+
+                    const card = document.createElement('div');
+                    card.className = 'kanban-card';
+                    card.innerHTML = `
+                        <h4>${cliente ? cliente.nome : 'Cliente Removido'}</h4>
+                        <p>${imovel ? imovel.titulo : 'Imóvel Removido'}</p>
+                        <p><strong>${formatCurrency(n.valor)}</strong></p>
+                        <div style="margin-top:10px; display:flex; gap:5px;">
+                            <button class="btn btn-sm" onclick="moverEtapa('${n.id}', -1)" title="Voltar"><i class="fas fa-arrow-left"></i></button>
+                            <button class="btn btn-sm" onclick="moverEtapa('${n.id}', 1)" title="Avançar"><i class="fas fa-arrow-right"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deletarNegociacao('${n.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    col.appendChild(card);
+                });
+
+                container.appendChild(col);
+            });
+
+            document.getElementById('dash-negociacoes').innerText = db.negociacoes.length;
+            document.getElementById('dash-valor-pipeline').innerText = formatCurrency(valorTotal);
+        }
+
+        function moverEtapa(id, direcao) {
+            const neg = db.negociacoes.find(n => n.id === id);
+            const indexAtual = etapas.findIndex(e => e.id === neg.etapa);
+            const novoIndex = indexAtual + direcao;
+
+            if(novoIndex >= 0 && novoIndex < etapas.length) {
+                neg.etapa = etapas[novoIndex].id;
+                saveDB();
+            }
+        }
+
+        function salvarNegociacao(e) {
+            e.preventDefault();
+            const neg = {
+                id: generateId(),
+                clienteId: document.getElementById('neg-cliente').value,
+                imovelId: document.getElementById('neg-imovel').value,
+                valor: document.getElementById('neg-valor').value,
+                etapa: document.getElementById('neg-etapa').value
+            };
+            db.negociacoes.push(neg);
+            saveDB();
+            closeModal('modal-negociacao');
+            e.target.reset();
+        }
+
+        function deletarNegociacao(id) {
+            db.negociacoes = db.negociacoes.filter(n => n.id !== id);
+            saveDB();
+        }
+
+        // --- AGENDA ---
+        function renderAgenda() {
+            const tbody = document.querySelector('#tabela-agenda tbody');
+            const listaHoje = document.getElementById('lista-agenda-hoje');
+            const listaAlertas = document.getElementById('lista-alertas');
+            
+            tbody.innerHTML = '';
+            listaHoje.innerHTML = '';
+            listaAlertas.innerHTML = '';
+
+            const hojeStr = new Date().toISOString().split('T')[0];
+
+            // Ordenar por data
+            db.atividades.sort((a,b) => new Date(a.data) - new Date(b.data));
+
+            db.atividades.forEach(a => {
+                const cliente = db.clientes.find(c => c.id === a.clienteId);
+                const dataFormatada = new Date(a.data).toLocaleString('pt-BR');
+                const dataIso = a.data.split('T')[0];
+
+                // Tabela Principal
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${dataFormatada}</td>
+                    <td>${a.tipo}</td>
+                    <td>${cliente ? cliente.nome : 'N/A'}</td>
+                    <td>${a.descricao}</td>
+                    <td>${a.status || 'Pendente'}</td>
+                    <td><button class="btn btn-sm btn-success" onclick="concluirAtividade('${a.id}')"><i class="fas fa-check"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+
+                // Dashboard: Agenda Hoje
+                if(dataIso === hojeStr && (!a.status || a.status === 'Pendente')) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="fas fa-clock"></i> ${a.data.split('T')[1]} - ${a.tipo} com ${cliente ? cliente.nome : ''}`;
+                    listaHoje.appendChild(li);
+                }
+
+                // Alertas (Atrasados)
+                if(new Date(a.data) < new Date() && (!a.status || a.status === 'Pendente')) {
+                    const li = document.createElement('li');
+                    li.style.color = 'var(--danger)';
+                    li.innerHTML = `Atrasado: ${a.tipo} - ${cliente ? cliente.nome : ''}`;
+                    listaAlertas.appendChild(li);
+                }
+            });
+
+            if(listaHoje.innerHTML === '') listaHoje.innerHTML = '<li>Nada agendado para hoje.</li>';
+            if(listaAlertas.innerHTML === '') listaAlertas.innerHTML = '<li>Nenhum alerta pendente.</li>';
+        }
+
+        function salvarAtividade(e) {
+            e.preventDefault();
+            const ativ = {
+                id: generateId(),
+                tipo: document.getElementById('ativ-tipo').value,
+                data: document.getElementById('ativ-data').value,
+                clienteId: document.getElementById('ativ-cliente').value,
+                descricao: document.getElementById('ativ-desc').value,
+                status: 'Pendente'
+            };
+            db.atividades.push(ativ);
+            saveDB();
+            closeModal('modal-atividade');
+            e.target.reset();
+        }
+
+        function concluirAtividade(id) {
+            const ativ = db.atividades.find(a => a.id === id);
+            ativ.status = 'Concluído';
+            saveDB();
+        }
+
+        // --- AUXILIARES DE INTERFACE ---
+        function populaSelects() {
+            const cliSelects = ['neg-cliente', 'ativ-cliente'];
+            const imoSelect = document.getElementById('neg-imovel');
+
+            cliSelects.forEach(id => {
+                const sel = document.getElementById(id);
+                if(sel) {
+                    sel.innerHTML = '<option value="">Selecione...</option>';
+                    db.clientes.forEach(c => {
+                        sel.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+                    });
+                }
+            });
+
+            if(imoSelect) {
+                imoSelect.innerHTML = '<option value="">Selecione...</option>';
+                db.imoveis.forEach(i => {
+                    imoSelect.innerHTML += `<option value="${i.id}">${i.titulo} (${formatCurrency(i.valor)})</option>`;
+                });
+            }
+        }
+
+        function renderAll() {
+            renderClientes();
+            renderImoveis();
+            renderFunil();
+            renderAgenda();
+            document.getElementById('data-hoje').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+
+        // INICIALIZAÇÃO
+        window.onload = function() {
+            renderAll();
+        };
+
+    </script>
+</body>
+</html>

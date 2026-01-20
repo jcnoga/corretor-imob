@@ -4,13 +4,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 
 // --- COLE AQUI SUA CONFIGURAÇÃO DO FIREBASE ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBhtwWew_DQNX2TZROUShZz4mjK57pRgQk",
-  authDomain: "lembrete-d6c15.firebaseapp.com",
-  projectId: "lembrete-d6c15",
-  storageBucket: "lembrete-d6c15.firebasestorage.app",
-  messagingSenderId: "368296869868",
-  appId: "1:368296869868:web:ea3d3baceb24b52fa90ac9",
-  measurementId: "G-CF25FSSKZE"
+  apiKey: "AIzaSyDRN1IlaIZ12yVqRrwQsxhoN3yGBI8oxCE",
+  authDomain: "corretor-imob-d9359.firebaseapp.com",
+  projectId: "corretor-imob-d9359",
+  storageBucket: "corretor-imob-d9359.firebasestorage.app",
+  messagingSenderId: "100488948331",
+  appId: "1:100488948331:web:e7a6a9beb78e6cad2e1f2e",
+  measurementId: "G-41PYMD0XE1"
 };
 
 // Inicializa o app e exporta o banco de dados

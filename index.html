@@ -637,7 +637,7 @@
         </div>
     </div>
 
-    <script>
+<script>
         /* =========================================
            1. ESTADO E INICIALIZAÇÃO
            ========================================= */
@@ -835,9 +835,6 @@
             const agora = new Date();
             let mudou = false;
             let disparouAlgum = false;
-
-            // Debug para acompanhamento no console
-            // console.log(`[Timer] Verificando ${db.atividades.length} atividades às ${agora.toLocaleTimeString()}`);
 
             db.atividades.forEach(a => {
                 if (!Array.isArray(a.lembretesEnviados)) a.lembretesEnviados = [];
@@ -1462,5 +1459,4 @@
 
         window.onload = initSystem;
     </script>
-</body>
 </html>

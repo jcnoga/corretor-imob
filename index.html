@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Imobiliário | Versão 8.0 (Estável)</title>
+    <title>CRM Imobiliário | Versão 8.1 (Teste Real)</title>
     <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -296,7 +296,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
                         <h3 style="margin:0"><i class="fas fa-envelope"></i> Notificações</h3>
                         <button class="btn btn-sm btn-info" onclick="botaoTesteLembrete()">
-                            <i class="fas fa-bell"></i> Testar Alerta
+                            <i class="fas fa-bell"></i> Executar Verificação
                         </button>
                     </div>
                     <ul id="log-email-simulado" style="list-style: none; margin-top: 15px; padding-left: 0; font-size: 0.8rem; color: #555; max-height: 150px; overflow-y: auto;">
@@ -644,7 +644,7 @@
         const schemaTemplate = {
             clientes: [], imoveis: [], negociacoes: [], atividades: [], imagensImoveis: {}, auditoriaImagens: [],
             corretor: { nome: "Corretor(a)", creci: "", empresa: "IMOB CRM", fone: "", email: "", foto: "" },
-            config: { version: '8.0', exibirAlertasTela: true, padraoAtivo: true, padraoPre1: "60", padraoPre2: "", padraoPos1: "" }
+            config: { version: '8.1', exibirAlertasTela: true, padraoAtivo: true, padraoPre1: "60", padraoPre2: "", padraoPos1: "" }
         };
 
         let db = {};
@@ -667,7 +667,6 @@
             saveDB();
             renderAll();
             
-            // Intervalo de verificação de lembretes (5 segundos)
             console.log("Sistema iniciado. Timer de lembretes ativo (5s).");
             setInterval(verificarLembretes, 5000); 
             setTimeout(verificarLembretes, 1000); // Check inicial
@@ -699,7 +698,7 @@
         }
 
         /* =========================================
-           2. LÓGICA DE IMAGENS (COM COMPRESSÃO)
+           2. LÓGICA DE IMAGENS
            ========================================= */
         function abrirGaleriaImovel(id) {
             imovelSelecionadoId = id;
@@ -822,21 +821,23 @@
         }
 
         /* =========================================
-           3. NOTIFICAÇÕES E SUGESTÕES (SISTEMA ROBUSTO)
+           3. NOTIFICAÇÕES E SUGESTÕES
            ========================================= */
         function jaEnviado(a, tipo, min) {
             if (!a.lembretesEnviados) return false;
             return a.lembretesEnviados.some(l => l.tipo === tipo && Number(l.minutos) === Number(min));
         }
 
+        // AGORA RETORNA TRUE SE DISPAROU ALGO
         function verificarLembretes() {
-            if (!db.config || !db.config.exibirAlertasTela) return;
+            if (!db.config || !db.config.exibirAlertasTela) return false;
 
             const agora = new Date();
             let mudou = false;
+            let disparouAlgum = false;
 
-            // Debug para acompanhamento
-            console.log(`[Timer] Verificando ${db.atividades.length} atividades às ${agora.toLocaleTimeString()}`);
+            // Debug para acompanhamento no console
+            // console.log(`[Timer] Verificando ${db.atividades.length} atividades às ${agora.toLocaleTimeString()}`);
 
             db.atividades.forEach(a => {
                 if (!Array.isArray(a.lembretesEnviados)) a.lembretesEnviados = [];
@@ -848,13 +849,12 @@
                 // Diferença em minutos (Negativo = Passado, Positivo = Futuro)
                 const diffMin = (dataAtiv.getTime() - agora.getTime()) / 60000;
 
-                // --- PRÉ-LEMBRETES (Catch-up Logic) ---
+                // --- PRÉ-LEMBRETES ---
                 (a.lembretesConfig.pre || []).forEach(rawT => {
                     const t = Number(rawT);
                     if (!t) return;
 
-                    // Se é futuro (diffMin > 0) E está na zona de aviso (diffMin <= t)
-                    // Dispara se ainda não foi enviado.
+                    // Lógica de Catch-up: Se é futuro e está na zona de aviso (diff <= t)
                     if (diffMin > 0 && diffMin <= t && !jaEnviado(a, 'pre', t)) {
                         console.warn(`🔥 DISPARANDO LEMBRETE: ${a.tipo}`);
                         const cli = db.clientes.find(c => c.id === a.clienteId);
@@ -866,17 +866,18 @@
                         
                         a.lembretesEnviados.push({ tipo: 'pre', minutos: t, data: new Date().toISOString() });
                         mudou = true;
+                        disparouAlgum = true;
                     }
                 });
 
-                // --- PÓS-LEMBRETES (Follow-up) ---
+                // --- PÓS-LEMBRETES ---
                 (a.lembretesConfig.pos || []).forEach(rawT => {
                     const t = Number(rawT);
                     if (!t) return;
 
                     const absMin = Math.abs(diffMin);
                     
-                    // Se já passou (diffMin < 0) E passou tempo suficiente (absMin >= t)
+                    // Lógica de Catch-up: Se passou e está na zona de follow-up
                     if (diffMin < 0 && absMin >= t && !jaEnviado(a, 'pos', t)) {
                         console.warn(`🔥 DISPARANDO FOLLOW-UP: ${a.tipo}`);
                         
@@ -892,17 +893,23 @@
                         
                         a.lembretesEnviados.push({ tipo: 'pos', minutos: t, data: new Date().toISOString() });
                         mudou = true;
+                        disparouAlgum = true;
                     }
                 });
             });
 
             if (mudou) saveDB();
+            return disparouAlgum;
         }
 
+        // Função de Teste Real
         function botaoTesteLembrete() {
-            notify('🔔 Teste de Sistema', 'O áudio e os alertas visuais estão funcionando!');
-            console.log("Forçando verificação imediata...");
-            verificarLembretes();
+            console.log(">>> Botão Teste: Iniciando verificação real...");
+            const disparou = verificarLembretes();
+            
+            if(!disparou) {
+                showToast('Rotina Executada', 'Nenhuma atividade precisava de alerta neste momento.');
+            }
         }
         
         function notify(titulo, msg) {

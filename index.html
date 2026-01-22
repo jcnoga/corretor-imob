@@ -579,6 +579,7 @@
     </div>
 
     <!-- Modal Atividade -->
+<!-- Modal Atividade -->
     <div id="modal-atividade" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h3 id="modal-ativ-title">Nova Atividade</h3><span class="close" onclick="closeModal('modal-atividade')">&times;</span></div>
@@ -596,8 +597,24 @@
                         <div><label style="font-size:0.8rem;">Ativar</label> <input type="checkbox" id="ativ-lembrete-ativo"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group" style="margin-bottom:0;"><label style="font-size:0.8rem;">Pré-aviso 1</label><select id="ativ-pre-1" style="font-size:0.8rem;"><option value="">Não avisar</option><option value="60">1h antes</option><option value="120">2h antes</option><option value="1440">1 dia antes</option></select></div>
-                        <div class="form-group" style="margin-bottom:0;"><label style="font-size:0.8rem;">Pós-Evento</label><select id="ativ-pos-1" style="font-size:0.8rem;"><option value="">Sem follow-up</option><option value="1440">Dia seguinte</option></select></div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.8rem;">Pré-aviso 1</label>
+                            <!-- OPÇÕES ATUALIZADAS AQUI -->
+                            <select id="ativ-pre-1" style="font-size:0.8rem;">
+                                <option value="">Não avisar</option>
+                                <option value="30">30 min antes</option>
+                                <option value="60">1 hora antes</option>
+                                <option value="120">2 horas antes</option>
+                                <option value="1440">1 dia antes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.8rem;">Pós-Evento</label>
+                            <select id="ativ-pos-1" style="font-size:0.8rem;">
+                                <option value="">Sem follow-up</option>
+                                <option value="1440">Dia seguinte</option>
+                            </select>
+                        </div>
                     </div>
                     <input type="hidden" id="ativ-pre-2"><input type="hidden" id="ativ-pos-2">
                 </div>
